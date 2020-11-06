@@ -139,6 +139,7 @@ public class SocialSharePlugin
                 Log.d("SocialSharePlugin", "Messenger share failed.");
                 channel.invokeMethod("onCancel", null);
             }
+            return true;
         }
 
         return callbackManager.onActivityResult(requestCode, resultCode, data);
