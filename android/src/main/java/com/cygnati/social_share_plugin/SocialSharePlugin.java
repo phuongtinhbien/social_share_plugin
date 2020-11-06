@@ -294,6 +294,7 @@ public class SocialSharePlugin
         ShareLinkContent.Builder shareLinkContentBuilder = new ShareLinkContent.Builder()
                 .setContentTitle(quote)
                 .setContentDescription(quote)
+                .setQuote(quote)
                 .setContentUrl(Uri.parse(url));
         MessageDialog messageDialog = new MessageDialog(activity);
         messageDialog.registerCallback(callbackManager, new FacebookCallback<Sharer.Result>() {
