@@ -291,12 +291,16 @@ public class SocialSharePlugin
         }
     }
     private void facebookMessenger(String quote, String url) {
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SENDTO);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, quote +"\n" + url);
-        sendIntent.setType("text/plain");
-        sendIntent.setPackage("com.facebook.orca");
-        activity.startActivityForResult(sendIntent, REQUEST_CODE_SHARE_TO_MESSENGER);
+        String content = quote +"\n" + url;
+        final Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("text/plain");
+        share.putExtra(Intent.EXTRA_TEXT,content );
+        share.setPackage(MESSENGER_PACKAGE_NAME);
+        share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        final Intent chooser = Intent.createChooser(share, "Share to");
+        activity.startActivityForResult(chooser, REQUEST_CODE_SHARE_TO_MESSENGER);
+
 
     }
 
@@ -304,5 +308,9 @@ public class SocialSharePlugin
         final String tweetUrl = String.format("https://twitter.com/intent/tweet?text=%s&url=%s", text, url);
         final Uri uri = Uri.parse(tweetUrl);
         activity.startActivityForResult(new Intent(Intent.ACTION_VIEW, uri), TWITTER_REQUEST_CODE);
+    }
+
+    private  void shareOption(String text, String url){
+
     }
 }
