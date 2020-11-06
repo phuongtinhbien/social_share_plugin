@@ -14,10 +14,15 @@ import androidx.core.content.FileProvider;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.messenger.MessengerUtils;
+import com.facebook.messenger.ShareToMessengerParams;
 import com.facebook.share.Sharer;
 import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.model.ShareMessengerActionButton;
+import com.facebook.share.model.ShareMessengerGenericTemplateElement;
 import com.facebook.share.model.SharePhoto;
 import com.facebook.share.model.SharePhotoContent;
+import com.facebook.share.widget.MessageDialog;
 import com.facebook.share.widget.ShareDialog;
 
 import java.io.File;
@@ -44,9 +49,11 @@ public class SocialSharePlugin
     private final static String INSTAGRAM_PACKAGE_NAME = "com.instagram.android";
     private final static String FACEBOOK_PACKAGE_NAME = "com.facebook.katana";
     private final static String TWITTER_PACKAGE_NAME = "com.twitter.android";
+    private final static String MESSENGER_PACKAGE_NAME = "com.facebook.orca";
 
     private final static int TWITTER_REQUEST_CODE = 0xc0ce;
     private final static int INSTAGRAM_REQUEST_CODE = 0xc0c3;
+    private final static int REQUEST_CODE_SHARE_TO_MESSENGER = 0xc0c4;
 
     private Activity activity;
     private MethodChannel channel;
@@ -174,6 +181,15 @@ public class SocialSharePlugin
                     result.success(false);
                 }
                 break;
+            case "shareToMessenger":
+                try {
+                    pm.getPackageInfo(MESSENGER_PACKAGE_NAME, PackageManager.GET_ACTIVITIES);
+                    facebookMessenger(call.<String>argument("quote"), call.<String>argument("url"));
+                    result.success(true);
+                } catch (PackageManager.NameNotFoundException e) {
+                    openPlayStore(MESSENGER_PACKAGE_NAME);
+                    result.success(false);
+                }
             default:
                 result.notImplemented();
                 break;
@@ -273,6 +289,37 @@ public class SocialSharePlugin
         if (ShareDialog.canShow(ShareLinkContent.class)) {
             shareDialog.show(content);
         }
+    }
+    private void facebookMessenger(String quote, String url) {
+        ShareLinkContent.Builder shareLinkContentBuilder = new ShareLinkContent.Builder()
+                .setContentTitle(quote)
+                .setContentDescription(quote)
+                .setContentUrl(Uri.parse(url));
+        MessageDialog messageDialog = new MessageDialog(activity);
+        messageDialog.registerCallback(callbackManager, new FacebookCallback<Sharer.Result>() {
+            @Override
+            public void onSuccess(Sharer.Result result) {
+                channel.invokeMethod("onSuccess", null);
+                Log.d("SocialSharePlugin", "Sharing successfully done.");
+            }
+
+            @Override
+            public void onCancel() {
+                channel.invokeMethod("onCancel", null);
+                Log.d("SocialSharePlugin", "Sharing cancelled.");
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                channel.invokeMethod("onError", error.getMessage());
+                Log.d("SocialSharePlugin", "Sharing error occurred.");
+            }
+        });
+        if (MessageDialog.canShow(ShareLinkContent.class)) {
+            messageDialog.show(shareLinkContentBuilder.build());
+
+        }
+
     }
 
     private void twitterShareLink(String text, String url) {
