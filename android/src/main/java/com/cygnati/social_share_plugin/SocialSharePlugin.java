@@ -292,11 +292,11 @@ public class SocialSharePlugin
     }
     private void facebookMessenger(String quote, String url) {
         Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.setAction(Intent.ACTION_SENDTO);
         sendIntent.putExtra(Intent.EXTRA_TEXT, quote +"\n" + url);
         sendIntent.setType("text/plain");
         sendIntent.setPackage("com.facebook.orca");
-        activity.startActivityForResult(sendIntent, TWITTER_REQUEST_CODE);
+        activity.startActivityForResult(sendIntent, REQUEST_CODE_SHARE_TO_MESSENGER);
 
     }
 
