@@ -131,7 +131,7 @@ public class SocialSharePlugin
             return true;
         }
         if (requestCode == REQUEST_CODE_SHARE_TO_MESSENGER) {
-Log.d("SocialSharePlugin", data.getDataString());
+
             if (resultCode == RESULT_OK) {
                 Log.d("SocialSharePlugin", "Messenger share done.");
                 channel.invokeMethod("onSuccess", null);
