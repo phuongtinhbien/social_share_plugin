@@ -291,35 +291,12 @@ public class SocialSharePlugin
         }
     }
     private void facebookMessenger(String quote, String url) {
-        ShareLinkContent.Builder shareLinkContentBuilder = new ShareLinkContent.Builder()
-                .setContentTitle(quote)
-                .setContentDescription(quote)
-                .setQuote(quote)
-                .setContentUrl(Uri.parse(url));
-        MessageDialog messageDialog = new MessageDialog(activity);
-        messageDialog.registerCallback(callbackManager, new FacebookCallback<Sharer.Result>() {
-            @Override
-            public void onSuccess(Sharer.Result result) {
-                channel.invokeMethod("onSuccess", null);
-                Log.d("SocialSharePlugin", "Sharing successfully done.");
-            }
-
-            @Override
-            public void onCancel() {
-                channel.invokeMethod("onCancel", null);
-                Log.d("SocialSharePlugin", "Sharing cancelled.");
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                channel.invokeMethod("onError", error.getMessage());
-                Log.d("SocialSharePlugin", "Sharing error occurred.");
-            }
-        });
-        if (MessageDialog.canShow(ShareLinkContent.class)) {
-            messageDialog.show(shareLinkContentBuilder.build());
-
-        }
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, quote +"\n" + url);
+        sendIntent.setType("text/plain");
+        sendIntent.setPackage("com.facebook.orca");
+        activity.startActivityForResult(sendIntent, TWITTER_REQUEST_CODE);
 
     }
 

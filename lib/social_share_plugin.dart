@@ -98,8 +98,6 @@ class SocialSharePlugin {
           return onSuccess(call.arguments);
         case "onCancel":
           return onCancel();
-        case "onError":
-          return onError(call.arguments);
         default:
           throw UnsupportedError("Unknown method called");
       }
