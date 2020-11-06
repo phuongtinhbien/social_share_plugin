@@ -302,15 +302,34 @@ public class SocialSharePlugin
         }
     }
     private void facebookMessenger(String quote, String url) {
-        String content = quote +"\n" + url;
-        final Intent share = new Intent(Intent.ACTION_SEND);
-        share.setType("text/plain");
-        share.putExtra(Intent.EXTRA_TEXT,content );
-        share.setPackage(MESSENGER_PACKAGE_NAME);
+        ShareLinkContent.Builder shareLinkContentBuilder = new ShareLinkContent.Builder()
+                .setContentTitle(quote)
+                .setContentDescription(quote)
+                .setContentUrl(Uri.parse(url));
+        MessageDialog messageDialog = new MessageDialog(activity);
+        messageDialog.registerCallback(callbackManager, new FacebookCallback<Sharer.Result>() {
+            @Override
+            public void onSuccess(Sharer.Result result) {
+                channel.invokeMethod("onSuccess", null);
+                Log.d("SocialSharePlugin", "Sharing successfully done.");
+            }
 
-        final Intent chooser = Intent.createChooser(share, "Share to");
-        activity.startActivityForResult(chooser, REQUEST_CODE_SHARE_TO_MESSENGER);
+            @Override
+            public void onCancel() {
+                channel.invokeMethod("onCancel", null);
+                Log.d("SocialSharePlugin", "Sharing cancelled.");
+            }
 
+            @Override
+            public void onError(FacebookException error) {
+                channel.invokeMethod("onError", error.getMessage());
+                Log.d("SocialSharePlugin", "Sharing error occurred.");
+            }
+        });
+        if (MessageDialog.canShow(ShareLinkContent.class)) {
+            messageDialog.show(shareLinkContentBuilder.build());
+
+        }
 
     }
 
