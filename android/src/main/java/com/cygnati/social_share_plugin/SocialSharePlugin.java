@@ -131,6 +131,7 @@ public class SocialSharePlugin
             return true;
         }
         if (requestCode == REQUEST_CODE_SHARE_TO_MESSENGER) {
+Log.d("SocialSharePlugin", data.getDataString());
             if (resultCode == RESULT_OK) {
                 Log.d("SocialSharePlugin", "Messenger share done.");
                 channel.invokeMethod("onSuccess", null);
@@ -305,7 +306,6 @@ public class SocialSharePlugin
         share.setType("text/plain");
         share.putExtra(Intent.EXTRA_TEXT,content );
         share.setPackage(MESSENGER_PACKAGE_NAME);
-        share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
         final Intent chooser = Intent.createChooser(share, "Share to");
         activity.startActivityForResult(chooser, REQUEST_CODE_SHARE_TO_MESSENGER);
