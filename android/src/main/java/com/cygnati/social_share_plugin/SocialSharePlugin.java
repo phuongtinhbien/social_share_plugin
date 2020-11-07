@@ -20,6 +20,7 @@ import com.facebook.share.Sharer;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.model.ShareMessengerActionButton;
 import com.facebook.share.model.ShareMessengerGenericTemplateElement;
+import com.facebook.share.model.ShareMessengerURLActionButton;
 import com.facebook.share.model.SharePhoto;
 import com.facebook.share.model.SharePhotoContent;
 import com.facebook.share.widget.MessageDialog;
@@ -302,34 +303,16 @@ public class SocialSharePlugin
         }
     }
     private void facebookMessenger(String quote, String url) {
-        ShareLinkContent.Builder shareLinkContentBuilder = new ShareLinkContent.Builder()
-                .setContentTitle(quote)
-                .setContentDescription(quote)
-                .setContentUrl(Uri.parse(url));
-        MessageDialog messageDialog = new MessageDialog(activity);
-        messageDialog.registerCallback(callbackManager, new FacebookCallback<Sharer.Result>() {
-            @Override
-            public void onSuccess(Sharer.Result result) {
-                channel.invokeMethod("onSuccess", null);
-                Log.d("SocialSharePlugin", "Sharing successfully done.");
-            }
+        String content = quote +"\n" + url;
+        final Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("text/plain");
+        share.putExtra(Intent.EXTRA_TEXT,content );
+        share.setPackage(MESSENGER_PACKAGE_NAME);
+        share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-            @Override
-            public void onCancel() {
-                channel.invokeMethod("onCancel", null);
-                Log.d("SocialSharePlugin", "Sharing cancelled.");
-            }
+        final Intent chooser = Intent.createChooser(share, "Share to");
+        activity.startActivityForResult(chooser, REQUEST_CODE_SHARE_TO_MESSENGER);
 
-            @Override
-            public void onError(FacebookException error) {
-                channel.invokeMethod("onError", error.getMessage());
-                Log.d("SocialSharePlugin", "Sharing error occurred.");
-            }
-        });
-        if (MessageDialog.canShow(ShareLinkContent.class)) {
-            messageDialog.show(shareLinkContentBuilder.build());
-
-        }
 
     }
 
